@@ -17,9 +17,10 @@ import logging
 from ops.charm import CharmBase
 from ops.framework import StoredState
 from ops.main import main
-from ops.model import ActiveStatus, BlockedStatus, MaintenanceStatus, ModelError, Relation
+from ops.model import ActiveStatus, BlockedStatus, MaintenanceStatus, ModelError
 
 import templating
+import json
 
 logger = logging.getLogger(__name__)
 
@@ -51,7 +52,7 @@ class SmokepingCharm(CharmBase):
                     "command": "/init",
                     "startup": "enabled",
                     "environment": {
-                        "TZ": "Europe/London",
+                        "TZ": self.config['timezone'],
                         "PUID": "1000",
                         "PGID": "1000"
                     },
@@ -93,37 +94,16 @@ class SmokepingCharm(CharmBase):
             # NOTE: Most likely the PebbleReadyEvent didn't fire yet, so there's no service to restart.
             return
 
-
     @property
     def _destinations(self):
-        ret = []
-        ret = [
-                {
-                 'unit_name': 'asd1',
-                 'host': '10.1.128.222'
-                },
-                {
-                 'unit_name': 'sdf5r',
-                 'host': '10.1.128.218'
-                },
-                {
-                 'unit_name': 'f3456',
-                 'host': '10.1.128.215'
-                },
-                {
-                 'unit_name': 'not_existing',
-                 'host': '10.1.128.154'
-                }
-              ]
-        #for relation in self.model.relations['smokeping-target']:
-        #    for unit in relation.units:
-        #        ret.append({
-        #            'url': relation.data[unit]['url'],
-        #            'nagios_context': relation.data[unit]['nagios_context'],
-        #            'thruk_key': relation.data[unit]['thruk_key'],
-        #            'thruk_id': relation.data[unit]['thruk_id'],
-        #        })
-        return ret
+        targets = []
+        try:
+            targets = json.loads(self.config['targets'])
+        except JSONDecodeError:
+            # malformed JSON code, throw error and go into blocked state
+            self.unit.status = BlockedStatus('Malformed JSON config for targets.')
+
+        return targets
 
     def _on_restart_action(self, event):
         event.log("Restarting Smokeping services")
