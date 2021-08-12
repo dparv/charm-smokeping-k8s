@@ -1,24 +1,44 @@
-# smokeping
+# Smokeping DEMO Charm for Kubernetes
 
 ## Description
 
-TODO: Describe your charm in a few paragraphs of Markdown
+This charm deploys Smokeping services that enables the administrator to use Juju to configure endpoints to be monitored and graphed.
 
 ## Usage
 
-TODO: Provide high-level usage, such as required config or relations
+
+### Build and deploy
+
+Build and deploy the charm:
+```
+charmcraft pack
+juju deploy ./smokeping-k8s.charm --resource smokeping-image=linuxserver/smokeping:latest
+```
+
+### Configuration options
 
 
-## Relations
+### Actions
 
-TODO: Provide any relations which are provided or required by your charm
+| Name | Parameters | Description |
+| --- | --- |
+| restart | Restarts the smokeping services.
 
-## OCI Images
+## Developing
 
-TODO: Include a link to the default image your charm uses
+Create and activate a virtualenv with the development requirements:
 
-## Contributing
+```
+    virtualenv -p python3 venv
+    source venv/bin/activate
+    pip install -r requirements-dev.txt
+```
 
-Please see the [Juju SDK docs](https://juju.is/docs/sdk) for guidelines 
-on enhancements to this charm following best practice guidelines, and
-`CONTRIBUTING.md` for developer guidance.
+## Testing
+
+The Python operator framework includes a very nice harness for testing
+operator behaviour without full deployment. Just `run_tests`:
+
+```
+    ./run_tests
+```
