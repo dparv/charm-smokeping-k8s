@@ -1,0 +1,10 @@
+# Copyright 2021 Diko Parvanov
+# See LICENSE file for licensing details.
+
+restart:
+  description: Restarts the smokeping service.
+  params:
+    service:
+      description: "Smokeping service restart"
+      type: string
+      default: ""

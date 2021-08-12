@@ -1,0 +1,19 @@
+*** Targets ***
+
+probe = FPing
+
+menu = Top
+title = Network Latency Grapher
+remark = Welcome to the SmokePing web interface
+
++ Destinations
+
+menu = Destinations
+title = Destinations
+
+{% for destination in destinations -%}
+++ {{destination['unit_name']}}
+menu = {{destination['unit_name']}}
+title = {{destination['unit_name']}}
+host = {{destination['host']}}
+{% endfor -%}

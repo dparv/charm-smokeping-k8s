@@ -1,0 +1,11 @@
+# Copyright 2021 Diko Parvanov
+# See LICENSE file for licensing details.
+
+options:
+  probe-interval:
+    default: 300
+    description: |
+      Duration of the base operation interval of SmokePing in seconds.
+      SmokePing will venture out every step seconds to ping your target hosts.
+    type: int
+

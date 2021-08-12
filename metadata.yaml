@@ -1,0 +1,16 @@
+# Copyright 2021 Diko Parvanov
+# See LICENSE file for licensing details.
+name: smokeping-k8s
+description: |
+  Charm to deploy and operate Smokeping.
+summary: |
+  Charm to operate and operate Smokeping.
+
+containers:
+  smokeping:
+    resource: smokeping-image
+
+resources:
+  smokeping-image:
+    type: oci-image
+    description: smokeping OCI image
