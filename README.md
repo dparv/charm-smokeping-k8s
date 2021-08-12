@@ -20,9 +20,9 @@ juju deploy ./smokeping-k8s.charm --resource smokeping-image=linuxserver/smokepi
 
 ### Actions
 
-| Name | Parameters | Description |
+| Name | Description |
 | --- | --- |
-| restart | Restarts the smokeping services.
+| restart | Restarts the smokeping services. |
 
 ## Developing
 
