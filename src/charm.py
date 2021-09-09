@@ -74,9 +74,8 @@ class SmokepingCharm(CharmBase):
         container.push("/config/Targets", templating.render(self.charm_dir, "Targets", context))
         container.push("/config/Database", templating.render(self.charm_dir, "Database", context))
 
-        if container.get_service(SERVICE).is_running():
-            container.stop(SERVICE)
-        container.start(SERVICE)
+        if not container.get_service(SERVICE).is_running():
+            container.start(SERVICE)
 
         self.unit.status = ActiveStatus()
 
