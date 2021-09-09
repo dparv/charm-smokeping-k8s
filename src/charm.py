@@ -85,7 +85,7 @@ class SmokepingCharm(CharmBase):
         targets = []
         try:
             targets = json.loads(self.config['targets'])
-        except JSONDecodeError:
+        except json.decoder.JSONDecodeError:
             # malformed JSON code, throw error and go into blocked state
             self.unit.status = BlockedStatus('Malformed JSON config for targets.')
 
