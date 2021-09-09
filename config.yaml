@@ -7,12 +7,14 @@ options:
     description: |
       Duration of the base operation interval of SmokePing in seconds.
       SmokePing will venture out every step seconds to ping your target hosts.
-      IMPORTANT: this will remove historical data as per Smokeping functionality.
+      IMPORTANT: Changing this config option will remove historical data as per 
+      Smokeping functionality.
     type: int
   targets:
     default: "[]"
     description: |
       JSON formatted file of targets with names and hosts to monitor.
+      For example: [ { "unit_name": "GoogleDNS", "host": "8.8.8.8" } ]
     type: string
   timezone:
     default: "Europe/London"
