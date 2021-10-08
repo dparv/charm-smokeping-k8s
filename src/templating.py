@@ -5,7 +5,7 @@ from jinja2 import FileSystemLoader, Environment, exceptions
 
 logger = logging.getLogger(__name__)
 
-def render(charm_dir, source, context):
+def render(charm_dir, source, context={}):
     """
     Render a template.
     The context should be a dict containing the values to be replaced in the

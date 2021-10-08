@@ -14,7 +14,9 @@ import json
 
 logger = logging.getLogger(__name__)
 
-SERVICE = "smokeping"
+CONTAINER = "smokeping"
+SMOKEPING_SERVICE = "smokeping"
+APACHE_SERVICE = "apache"
 
 class SmokepingCharm(CharmBase):
     """Charm the service."""
@@ -36,35 +38,50 @@ class SmokepingCharm(CharmBase):
     def _render_config_and_run(self):
         self.unit.status = MaintenanceStatus('Configuring Smokeping')
 
-        container = self.unit.get_container(SERVICE)
+        container = self.unit.get_container(CONTAINER)
 
-        pebble_layer = {
+        pebble_smokeping_layer = {
             "summary": "smokeping layer",
             "description": "pebble config layer for smokeping ",
             "services": {
                 "smokeping": {
                     "override": "replace",
                     "summary": "smokeping",
-                    "command": "/init",
+                    "command": "/usr/bin/perl /usr/bin/smokeping --config=/etc/smokeping/config --nodaemon",
                     "startup": "enabled",
                     "environment": {
                         "TZ": self.config['timezone'],
                     },
+                },
+                "apache": {
+                    "override": "replace",
+                    "summary": "apache",
+                    "command": "/start_apache.sh",
+                    "startup": "enabled",
                 }
-            },
+            }
         }
 
-        container.add_layer(SERVICE, pebble_layer, combine=True)
+        container.add_layer(SMOKEPING_SERVICE, pebble_smokeping_layer, combine=True)
 
         context = {
             'config': self.config,
             'destinations': self._destinations,
         }
+        container.make_dir("/var/cache/smokeping", user="abc", group="abc", make_parents=True)
+        container.push("/config/General", templating.render(self.charm_dir, "General"))
+        container.push("/config/Alerts", templating.render(self.charm_dir, "Alerts"))
+        container.push("/config/Presentation", templating.render(self.charm_dir, "Presentation"))
+        container.push("/config/Probes", templating.render(self.charm_dir, "Probes"))
+        container.push("/config/Slaves", templating.render(self.charm_dir,"Slaves"))
         container.push("/config/Targets", templating.render(self.charm_dir, "Targets", context))
         container.push("/config/Database", templating.render(self.charm_dir, "Database", context))
+        container.push("/config/pathnames", templating.render(self.charm_dir, "pathnames"))
+        container.push("/etc/apache2/httpd.conf", templating.render(self.charm_dir, "httpd.conf"))
+        container.push("/start_apache.sh", templating.render(self.charm_dir, "start_apache.sh"), permissions=0o755)
 
-        if not container.get_service(SERVICE).is_running():
-            container.start(SERVICE)
+        self._restart_container_service(CONTAINER, SMOKEPING_SERVICE)
+        self._restart_container_service(CONTAINER, APACHE_SERVICE)
 
         self.unit.status = ActiveStatus()
 
@@ -82,7 +99,8 @@ class SmokepingCharm(CharmBase):
     def _on_restart_action(self, event):
         event.log("Restarting Smokeping services")
         try:
-            self._restart_container_service(SERVICE, SERVICE)
+            self._restart_container_service(CONTAINER, SMOKEPING_SERVICE)
+            self._restart_container_service(CONTAINER, APACHE_SERVICE)
         except ModelError as e:
             event.fail(message=str(e))
 
@@ -93,7 +111,8 @@ class SmokepingCharm(CharmBase):
             logger.error(msg)
             return
 
-        if container.get_service(svc_name).is_running():
+        service = container.get_service(svc_name)
+        if service and service.is_running():
             container.stop(svc_name)
         container.start(svc_name)
 
